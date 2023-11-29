@@ -1,10 +1,14 @@
-deta==0.9
+deta
 fastapi
 numpy
 python-multipart
 jinja2
-scipy==1.7.0
+scipy
 requests
 uvicorn
 aiofiles
 pytest
+openai
+python-dotenv
+markdown
+html_sanitizer

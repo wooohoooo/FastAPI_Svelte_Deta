@@ -31,12 +31,26 @@ Activate this vitrual environment with `source .venv/bin/activate`.
 
 Install the dependencies for the virtual environment with `pip install -r requirements.txt`.
 
-To make changes to the frontend, enter the `svelte` directory (first run npm install) and start the development server with `npm run dev`. (You may need to run `npm run i` first).
+To make changes to the frontend, enter the `svelte` directory (first run `npm install`) and start the development server with `npm run dev`. (You may need to run `npm run i` first).
 
 Finally, serve the svelte frontend with uvicorn using `uvicorn main:app --reload` from the root ****directory.
 
 Change something in any Svelte file (or in the backend) and the app should automatically reload.
 
+# Caveats
+1. If using OpenAI or any other API that requires a key, set your space file up for this: 
+`   primary: true
+    presets:
+      env:
+        - name: OPENAI_API_KEY
+          description: Secret message only available to this Micro
+          default: "deta is cool"
+`
+Then go to deta and set your key under Micro-settings-configuration
+2. If People outside of deta should have access, set your public_routes run: uvicorn main:app
+`     public_routes:
+        - "/*"
+`
 # Deployment
 
 When you are ready to push the app to production in a Deta Micro, use the following steps:

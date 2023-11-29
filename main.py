@@ -5,166 +5,43 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List
 import random
+from openai import OpenAI
+import os
+from fastapi.middleware.cors import CORSMiddleware
+import markdown
+from html_sanitizer import Sanitizer
+sanitizer = Sanitizer()
+
+def convert_markdown_to_html_sanitised(md):
+    return sanitizer.sanitize(markdown.markdown(md))
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except:
+    print("are we on Deta?")
 
 
 app = FastAPI()
 
 app.mount("/svelte", StaticFiles(directory="svelte/public", html=True), name="svelte")
+origins = ["*"]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-class NewExp(BaseModel):
-    name: str
-    owner_name: str
-    id_consistency: bool
-    type: str
-    was_updated: bool
-    experiment_type: str
-    interventions: List[dict]
+api_key = os.environ.get("OPENAI_API_KEY")  # vars['image']#os.getenv("OPENAI_API_KEY")
 
-
-class GaussianExp(BaseModel):
-    name: str
-    owner_name: str
-    id_consistency: bool
-    type: str
-    was_updated: bool
-    experiment_type: str
-    interventions: List[dict]
-
-
-exps = [
-    [
-        {
-            "experiment_type": "beta_binomial",
-            "id_consistency": False,
-            "interventions": [
-                {
-                    "intervention_name": "string",
-                    "num_played": 0,
-                    "num_successes": 0
-                }
-            ],
-            "key": "2m85jguxj2qg",
-            "name": "string",
-            "owner_name": "string",
-            "type": "binary",
-            "was_updated": False
-        },
-        {
-            "experiment_type": "beta_binomial",
-            "id_consistency": False,
-            "interventions": [
-                {
-                    "intervention_name": "a",
-                    "num_played": 4,
-                    "num_successes": 3
-                },
-                {
-                    "intervention_name": "b",
-                    "num_played": 4,
-                    "num_successes": 1
-                },
-                {
-                    "intervention_name": "c",
-                    "num_played": 3,
-                    "num_successes": 3
-                }
-            ],
-            "key": "9roqxa7ew51a",
-            "name": "test experiment 1",
-            "owner_name": "",
-            "type": "BINARY",
-            "was_updated": False
-        },
-        {
-            "experiment_type": "beta_binomial",
-            "id_consistency": True,
-            "interventions": [
-                {
-                    "intervention_name": "a",
-                    "num_played": 0,
-                    "num_successes": 0
-                },
-                {
-                    "intervention_name": "b",
-                    "num_played": 0,
-                    "num_successes": 0
-                },
-                {
-                    "intervention_name": "c",
-                    "num_played": 0,
-                    "num_successes": 0
-                }
-            ],
-            "key": "bbgxzfxbjyk4",
-            "name": "string",
-            "owner_name": "string",
-            "type": "binary",
-            "was_updated": False
-        },
-        {
-            "experiment_type": "beta_binomial",
-            "id_consistency": False,
-            "interventions": [
-                {
-                    "intervention_name": "a",
-                    "num_played": 0,
-                    "num_successes": 0
-                },
-                {
-                    "intervention_name": "b",
-                    "num_played": 0,
-                    "num_successes": 0
-                },
-                {
-                    "intervention_name": "c",
-                    "num_played": 0,
-                    "num_successes": 0
-                }
-            ],
-            "key": "f88ydslgfxru",
-            "name": "beta_binomial_inter_consistencydhdhd",
-            "owner_name": "string",
-            "type": "binary",
-            "was_updated": False
-        },
-        {
-        "experiment_type": "gaussian",
-        "id_consistency": False,
-        "interventions": [
-            {
-                "intervention_name": "a",
-                "mean": 2.475,
-                "std": 0.33447720400649056,
-                "sum_x": 9.9,
-                "sum_x_squared": 24.95,
-                "trials": 4
-            },
-            {
-                "intervention_name": "b",
-                "mean": 1.58,
-                "std": 0.36,
-                "sum_x": 7.9,
-                "sum_x_squared": 13.15,
-                "trials": 4
-            },
-            {
-                "intervention_name": "c",
-                "mean": 0,
-                "std": 1,
-                "sum_x": 0,
-                "sum_x_squared": 0,
-                "trials": 0
-            }
-        ],
-        "key": "5jr2zht5cght",
-        "name": "gaussian_test",
-        "owner_name": "string",
-        "type": "gaussian",
-        "was_updated": False
-    }
-    ]
-]
+client = OpenAI(
+    # organization='org-Ni5AudxFddc7HLBS5Ezx4bo3',
+    api_key=api_key
+)
+client.models.list()
 
 
 @app.get("/sponge")
@@ -172,175 +49,92 @@ def sponge():
     return "sponge"
 
 
-@app.get("/private/experiment_list")
-def get_experiments():
-    return exps
+@app.get('/fake_chat')
+def fake_chat():
 
 
-@app.get("/private/experiments/{key}")
-def get_exp(key: str):
-    list = [{
-      "experiment_type": "beta_binomial",
-      "id_consistency": False,
-      "interventions": [
-        {
-          "intervention_name": "a",
-          "num_played": 6,
-          "num_successes": 0
-        },
-        {
-          "intervention_name": "b",
-          "num_played": 5,
-          "num_successes": 3
-        },
-        {
-          "intervention_name": "c",
-          "num_played": 13,
-          "num_successes": 11
-        },
-        {
-          "intervention_name": "d",
-          "num_played": 6,
-          "num_successes": 6
-        },
-                {
-          "intervention_name": "e",
-          "num_played": 9,
-          "num_successes": 8
-        }
-      ],
-      "key": "6ve8dml1qx90",
-      "name": "beta_3",
-      "owner_name": "string",
-      "type": "beta_binomial",
-      "was_updated": True
-    }, {
-        "experiment_type": "gaussian",
-        "id_consistency": True,
-        "interventions": [
-            {
-                "intervention_name": "a",
-                "mean": 2.475,
-                "std": 0.33447720400649056,
-                "sum_x": 9.9,
-                "sum_x_squared": 24.95,
-                "trials": 5
-            },
-            {
-                "intervention_name": "b",
-                "mean": 1.58,
-                "std": 0.36,
-                "sum_x": 7.9,
-                "sum_x_squared": 13.15,
-                "trials": 6
-            },
-            {
-                "intervention_name": "c",
-                "mean": 0,
-                "std": 1,
-                "sum_x": 0,
-                "sum_x_squared": 0,
-                "trials": 0
-            }
-        ],
-        "key": "5jr2zht5cght",
-        "name": "gaussian_test",
-        "owner_name": "string",
-        "type": "gaussian",
-        "was_updated": False
-    }]
-    return random.choice(list)
+    threads = ['thread_24kiAnZO6Pr3Z4TVsoN7ungo', 'thread_qafhq2MZvE7CWr0mzvPySbHC', 'thread_xYArecO5KymuXGnBwZY0FTXP']
 
+    # thread_xYArecO5KymuXGnBwZY0FTXP
 
-@app.get("/private/experiments/{name}/viz")
-def get_viz(name: str):
-    def iterfile():
-        with open("./fig.png", mode="rb") as file_like:
-            yield from file_like
-    return StreamingResponse(iterfile(), media_type="image/png")
+    messages = client.beta.threads.messages.list(
+        thread_id='thread_qafhq2MZvE7CWr0mzvPySbHC'
+    )
 
+    return_messages = []
 
-@app.post("/private/experiment/beta_binomial")
-def create_exp(request: Request, exp: NewExp):
-    exps[0].append(exp.dict())
-    return {
-        "experiment_type": "beta_binomial",
-        "id_consistency": True,
-        "interventions": [
-            {
-                "intervention_name": "string",
-                "num_played": 0,
-                "num_successes": 0
-            }
-        ],
-        "key": "2m85jguxj2qg",
-        "name": "string",
-        "owner_name": "string",
-        "type": "binary",
-        "was_updated": False
-    }
+    for message in messages.data:
+        msg_dict = {'role': message.role, 'message': convert_markdown_to_html_sanitised(message.content[0].text.value)}
+        return_messages.append(msg_dict)
 
+    return return_messages[:10][::-1]
 
-@app.post("/private/experiment/gaussian")
-def create_gaussian(request: Request, exp: GaussianExp):
-    print(exp)
-    return {
-        "experiment_type": "gaussian",
-        "id_consistency": False,
-        "interventions": [
-            {
-                "intervention_name": "a",
-                "mean": 2.475,
-                "std": 0.33447720400649056,
-                "sum_x": 9.9,
-                "sum_x_squared": 24.95,
-                "trials": 4
-            },
-            {
-                "intervention_name": "b",
-                "mean": 1.58,
-                "std": 0.3655133376499406,
-                "sum_x": 7.9,
-                "sum_x_squared": 13.15,
-                "trials": 5
-            },
-            {
-                "intervention_name": "c",
-                "mean": 0,
-                "std": 1,
-                "sum_x": 0,
-                "sum_x_squared": 0,
-                "trials": 0
-            }
-        ],
-        "key": "5jr2zht5cght",
-        "name": "gaussian_test",
-        "owner_name": "string",
-        "type": "gaussian",
-        "was_updated": False
-    }
+class UserInput(BaseModel):
+    question:str = "Please explain something from the documents to me"
+    role:str='user'
+@app.post('/ask_question')
+async def ask_question(user_input:UserInput):
+    question = user_input.question
+    user = user_input.role
+    print(user_input)
 
+    answer = get_answer(question)
+    return answer
 
+def get_answer(question):
+    import time
 
-@app.get("/public/experiments/{key}/get_intervention")
-def get_intervention(key: str):
-    return "blue"
+    thread_id = 'thread_qafhq2MZvE7CWr0mzvPySbHC'  # 'thread_qafhq2MZvE7CWr0mzvPySbHC'
+    assistant_id = 'asst_tssjRlVs7V4kNrWLBxhzYNPo'
+
+    message = client.beta.threads.messages.create(
+        thread_id=thread_id,
+        role="user",
+        content=question
+    )
+
+    run = client.beta.threads.runs.create(
+        thread_id=thread_id,
+        assistant_id=assistant_id,
+        # instructions="Please address the user as Jane Doe. The user has a premium account."
+    )
+
+    outcome = client.beta.threads.runs.retrieve(
+        thread_id=thread_id,
+        run_id=run.id
+    )
+
+    while outcome.status not in  ['completed','failed']:
+        print(outcome.status)
+
+        print(f'waiting for reply from Assistant, status is: {outcome.status}')
+        time.sleep(.5)
+        outcome = client.beta.threads.runs.retrieve(
+            thread_id=thread_id,
+            run_id=run.id
+        )
+    print(outcome.status)
+    if outcome.status == 'failed':
+        return {'role': 'local system', 'message': 'it looks like the run failed. Possibly no more credits!'}
+
+    print('Received a reply!')
+
+    messages = client.beta.threads.messages.list(
+        thread_id=thread_id
+    )
+
+    return_messages = []
+
+    for message in messages.data:
+        msg_dict = {'role': message.role, 'message': convert_markdown_to_html_sanitised(message.content[0].text.value)}
+        return_messages.append(msg_dict)
+
+    return return_messages[0]
 
 
 @app.get("/{full_path:path}")
 def render_svelte(request: Request, full_path: str):
     return FileResponse("svelte/public/index.html")
-
-
-
-@app.delete("/private/experiment/delete")
-def delete_exp(key: str):
-    return key
-
-
-@app.delete("/private/consistent_intervention/delete")
-def delete_consistency(experiment_name: str, user_id: str):
-    return experiment_name, user_id
 
 
 
