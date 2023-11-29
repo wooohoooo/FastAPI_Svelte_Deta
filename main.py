@@ -9,7 +9,7 @@ import random
 
 app = FastAPI()
 
-app.mount("/svelte", StaticFiles(directory="svelte/public", html=True), name="build")
+app.mount("/svelte", StaticFiles(directory="svelte/public", html=True), name="svelte")
 
 
 class NewExp(BaseModel):
@@ -332,6 +332,7 @@ def render_svelte(request: Request, full_path: str):
     return FileResponse("svelte/public/index.html")
 
 
+
 @app.delete("/private/experiment/delete")
 def delete_exp(key: str):
     return key
@@ -340,3 +341,13 @@ def delete_exp(key: str):
 @app.delete("/private/consistent_intervention/delete")
 def delete_consistency(experiment_name: str, user_id: str):
     return experiment_name, user_id
+
+
+
+
+# # Press the green button in the gutter to run the script.
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+# See PyCharm help at https://www.jetbrains.com/help/pycharm/

@@ -31,7 +31,7 @@ Activate this vitrual environment with `source .venv/bin/activate`.
 
 Install the dependencies for the virtual environment with `pip install -r requirements.txt`.
 
-To make changes to the frontend, enter the `svelte` directory and start the development server with `npm run dev`. (You may need to run `npm run i` first).
+To make changes to the frontend, enter the `svelte` directory (first run npm install) and start the development server with `npm run dev`. (You may need to run `npm run i` first).
 
 Finally, serve the svelte frontend with uvicorn using `uvicorn main:app --reload` from the root ****directory.
 
